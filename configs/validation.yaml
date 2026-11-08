@@ -1,6 +1,14 @@
-quality_gate: PASS_WITH_WARNINGS
 required_checks:
   - package_import
+  - python_compile
   - structural_tests
   - secret_scan
   - prohibited_artifact_scan
+
+gate_policy:
+  pass: all_required_checks_pass
+  fail: any_required_check_fails_or_is_skipped
+
+notes:
+  - phase_0_has_no_dataset_or_model_performance_claims
+  - secret_scan_is_pattern_based_and_not_a_dedicated_secret_scanner

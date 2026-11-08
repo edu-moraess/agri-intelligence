@@ -2,6 +2,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
+import math
 from typing import Any, Mapping
 
 @dataclass(frozen=True)
@@ -22,8 +23,8 @@ class Uncertainty:
     def __post_init__(self) -> None:
         if not self.kind.strip():
             raise ValueError("uncertainty kind is required")
-        if self.value is not None and self.value < 0:
-            raise ValueError("uncertainty value cannot be negative")
+        if self.value is not None and (not math.isfinite(self.value) or self.value < 0):
+            raise ValueError("uncertainty value must be finite and non-negative")
 
 @dataclass(frozen=True)
 class Observation:
@@ -48,8 +49,10 @@ class Prediction:
     def __post_init__(self) -> None:
         if not self.id.strip() or not self.model.strip():
             raise ValueError("prediction id and model are required")
-        if self.confidence is not None and not 0 <= self.confidence <= 1:
-            raise ValueError("confidence must be between 0 and 1")
+        if self.confidence is not None and (
+            not math.isfinite(self.confidence) or not 0 <= self.confidence <= 1
+        ):
+            raise ValueError("confidence must be finite and between 0 and 1")
 
 @dataclass(frozen=True)
 class DerivedMeasurement:
@@ -62,3 +65,5 @@ class DerivedMeasurement:
     def __post_init__(self) -> None:
         if not self.id.strip() or not self.unit.strip() or not self.inputs:
             raise ValueError("measurement id, unit and inputs are required")
+        if not math.isfinite(self.value):
+            raise ValueError("measurement value must be finite")
