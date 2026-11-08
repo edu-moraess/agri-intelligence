@@ -1,0 +1,2 @@
+# Fase 0 não requer dependências de runtime externas.
+# Dependências opcionais de teste estão declaradas em pyproject.toml.

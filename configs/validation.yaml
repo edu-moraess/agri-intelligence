@@ -1,0 +1,6 @@
+quality_gate: PASS_WITH_WARNINGS
+required_checks:
+  - package_import
+  - structural_tests
+  - secret_scan
+  - prohibited_artifact_scan

@@ -1,0 +1,4 @@
+project: agri-intelligence
+phase: 0
+claims_policy: evidence_only
+spatial_measurements_require_reference: true

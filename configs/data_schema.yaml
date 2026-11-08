@@ -1,0 +1,5 @@
+observation:
+  required: [id, source, observed_at]
+  optional: [sensor, campaign, crop, geometry]
+provenance:
+  required: [source, method]
