@@ -1,5 +1,11 @@
+import sys
 import unittest
 from datetime import datetime, timezone
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
 from agri_intelligence.core.contracts import Observation, Prediction, Provenance, Uncertainty, DerivedMeasurement
 from agri_intelligence.geometry.coordinates import CoordinateSpace, GroundSamplingDistance, Point, euclidean_distance
 from agri_intelligence.geospatial.metadata import SpatialMetadata
