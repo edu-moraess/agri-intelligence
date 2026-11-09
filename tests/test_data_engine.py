@@ -348,7 +348,7 @@ class DataEngineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "sample.jpg"
             # SOI + baseline SOF0 + precision/height/width/component count.
-            path.write_bytes(b"\\xff\\xd8\\xff\\xc0\\x00\\x0b\\x08\\x000\\x00@\\x03")
+            path.write_bytes(b"\xff\xd8\xff\xc0\x00\x0b\x08\x000\x00@\x03")
             self.assertEqual(_image_dimensions(path), (64, 48, 3, "jpeg"))
 
     def test_jpeg_header_parser_stops_at_configured_header_limit(self):
