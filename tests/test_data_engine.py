@@ -81,6 +81,10 @@ class DataEngineTests(unittest.TestCase):
     def test_verified_license_allows_adoption_only_when_all_requirements_met(self):
         self.assertFalse(self.verified_license().adoption_blocked)
 
+    def test_license_rejects_malformed_attribution_metadata(self):
+        with self.assertRaises(ValueError):
+            self.verified_license(attribution_required="yes")
+
     def test_checksum_and_missing_file_behavior(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -190,8 +194,14 @@ class DataEngineTests(unittest.TestCase):
         self.assertNotIn("bbox_out_of_bounds", {item.code for item in xyxy.findings})
 
     def test_annotation_rejects_unsupported_coordinate_mode(self):
-        audit = audit_detection_records([], {}, set(), coordinate_mode="unknown")
-        self.assertEqual(audit.findings[0].code, "unsupported_coordinate_mode")
+        for mode in ("unknown", ["absolute_xywh"]):
+            with self.subTest(mode=mode):
+                audit = audit_detection_records([], {}, set(), coordinate_mode=mode)
+                self.assertEqual(audit.findings[0].code, "unsupported_coordinate_mode")
+
+    def test_schema_rejects_non_string_coordinate_mode(self):
+        with self.assertRaises(ValueError):
+            AnnotationSchema("coco", "detection", ("plant",), coordinate_mode=["xywh"])
 
     def test_annotation_rejects_non_mapping_records(self):
         audit = audit_detection_records([None], {"img": (10, 10)}, {"single"})
