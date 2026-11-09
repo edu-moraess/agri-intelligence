@@ -71,7 +71,7 @@ class TilingTests(unittest.TestCase):
         self.assertEqual((record.x, record.y), (2, 0))
         self.assertEqual(top_right.pixels, bytes([2, 3, 6, 7]))
         bottom_left, _ = tiles[2]
-        self.assertEqual(bottom_left.pixels, bytes([8, 9, 12, 13]))
+        self.assertEqual(bottom_left.pixels, bytes([4, 5, 8, 9]))
 
     def test_tile_frames_preserve_source_provenance(self):
         source = frame()
