@@ -145,7 +145,7 @@ class DetectionEvaluationTests(unittest.TestCase):
         self.assertEqual(dict(metrics.average_precision)[0.5], 1.0)
 
     def test_configurable_iou_thresholds_produce_separate_map_values(self):
-        partial = box("image-1", 0, 0, 8, 10)
+        partial = box("image-1", 0, 0, 7, 10)
         result = evaluate_detections(
             [gt()],
             [pred(bbox=partial)],
