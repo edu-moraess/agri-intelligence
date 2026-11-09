@@ -18,6 +18,7 @@ data/processed/*
 !data/processed/.gitkeep
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/msdd_candidate_audit.json
 *.pt
 *.onnx
 *.safetensors

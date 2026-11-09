@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "msdd",
+  "candidate": "Project-AgML/maize_seedling_msdd_detection",
+  "adoption_state": "BLOCKED",
+  "download_performed": false,
+  "license": {
+    "distribution_status": "unknown",
+    "original_material_status": "not_verified",
+    "redistribution_rights": "not_verified",
+    "commercial_use": "not_verified",
+    "attribution": "not_verified"
+  },
+  "public_evidence": {
+    "article_doi": "10.3390/agronomy16161605",
+    "article_url": "https://doi.org/10.3390/agronomy16161605",
+    "preprint_url": "https://arxiv.org/abs/2509.15181",
+    "distribution_url": "https://huggingface.co/datasets/Project-AgML/maize_seedling_msdd_detection",
+    "observed_distribution_format": "parquet_conversion",
+    "observed_distribution_rows": 3152,
+    "observed_fields": ["objects", "flight_date", "source_video", "split"],
+    "declared_article_classes": ["single", "double", "triple"],
+    "declared_article_annotated_objects": 163921
+  },
+  "pending": [
+    "Verify the specific Hugging Face distribution license and terms.",
+    "Verify original dataset license and redistribution rights.",
+    "Verify commercial-use restrictions and attribution requirements.",
+    "Verify provenance and integrity of the Parquet conversion against original files.",
+    "Audit original split files and group relationships before any re-splitting."
+  ],
+  "limitations": [
+    "This report uses public metadata only and does not validate downloaded assets.",
+    "Article facts are not evidence of a license for a separate distribution.",
+    "No dataset approval or performance claim is made."
+  ]
+}

@@ -4,7 +4,7 @@
 Concluída neste repositório: contratos, arquitetura, governança e validação estrutural.
 
 ## Fase 1 — Data engine
-Auditar origem, licença, anotações, campanhas, leakage, resolução e splits do MSDD ou de outro dataset; somente depois decidir adoção.
+Fundação implementada nesta branch: contratos de dataset, inventário local com SHA-256 e cabeçalhos de imagem, manifesto JSON, auditoria de bounding boxes e verificações conservadoras de leakage. O MSDD permanece `BLOCKED` até a verificação da licença da distribuição, direitos de redistribuição, proveniência da conversão Parquet e splits originais. Consulte `artifacts/msdd_candidate_audit.json`.
 
 ## Fase 2 — Crop perception
 Adicionar adaptadores de detecção/segmentação, tiled inference e avaliação em espaço de imagem.
