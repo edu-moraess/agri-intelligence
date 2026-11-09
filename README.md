@@ -36,6 +36,7 @@ A Fase 1 está integrada à `main` no commit `14a0435a0d28673dd98c6934b66a081bfd
 - [Governança de dados](docs/DATA_GOVERNANCE.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Plano técnico da Fase 2 — Crop Vision Engine](docs/PHASE_2_VISION_PLAN.md)
+- [Auditoria de prontidão da Fase 2](docs/PHASE_2_READINESS_AUDIT.md)
 - [Revisão arquitetural](docs/ARCHITECTURE_REVIEW.md)
 
 ## Validação manual
