@@ -118,7 +118,7 @@ class AnnotationSchema:
             raise ValueError("annotation classes must be non-empty strings")
         if len(set(self.classes)) != len(self.classes):
             raise ValueError("annotation classes must be unique")
-        if self.coordinate_mode not in {
+        if not isinstance(self.coordinate_mode, str) or self.coordinate_mode not in {
             "absolute_xywh", "normalized_xywh", "absolute_xyxy", "normalized_xyxy"
         }:
             raise ValueError("unsupported annotation coordinate_mode")
