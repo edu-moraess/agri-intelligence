@@ -18,7 +18,7 @@ O MSDD permanece **BLOCKED** até verificação da licença da distribuição ex
 
 ## Fase 2 — Crop Vision Engine
 
-**Estado: planejamento técnico documentado; implementação não iniciada.**
+**Estado: em execução; incrementos 2.0–2.3 integrados à `main`; 2.4 em implementação.**
 
 Escopo inicial em espaço de imagem:
 1. Readiness de dados, classes, licença e protocolo experimental.
@@ -26,11 +26,11 @@ Escopo inicial em espaço de imagem:
 3. Tiling com transformação tile → imagem original.
 4. Adaptador de detector independente de backend.
 5. Pós-processamento e deduplicação.
-6. Avaliação com ground truth auditado, splits por grupos de aquisição e métricas reproduzíveis.
+6. Avaliação com ground truth auditado, matching determinístico e métricas reproduzíveis.
 
 A primeira entrega será detecção. Segmentação depende de máscaras aprovadas e fica fora do primeiro incremento. Consulte [PHASE_2_VISION_PLAN.md](PHASE_2_VISION_PLAN.md).
 
-## Fase 3 — Spatial Intelligence
+### Incrementos da Fase 2\n\n- 2.0 — Perception Contracts: concluída.\n- 2.1 — Image I/O + Tiling: concluída.\n- 2.2 — Detector Adapter: concluída.\n- 2.3 — Image-space Postprocessing: concluída.\n- 2.4 — Evaluation Framework: em implementação.\n- 2.5 — Primeiro experimento real: pendente de dados aprovados, ground truth auditado e protocolo congelado.\n\n## Fase 3 — Spatial Intelligence
 
 Reconstruir linhas quando suportado pelos dados, associar detecções à referência espacial, validar CRS/GSD/transformações e calcular distâncias somente quando houver escala espacial válida. Produzir mapas e exportações georreferenciadas com precisão documentada.
 
