@@ -31,6 +31,7 @@ def pred(
     class_id="seedling",
     score=0.9,
     bbox=None,
+    tile_id=None,
 ):
     return DetectionPrediction(
         prediction_id=prediction_id,
@@ -41,6 +42,7 @@ def pred(
         model_name="fixture",
         model_version="1",
         run_id="run-1",
+        tile_id=tile_id,
     )
 
 
@@ -163,7 +165,7 @@ class DetectionEvaluationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "IMAGE coordinate"):
             evaluate_detections(
                 [gt()],
-                [pred(bbox=tiled)],
+                [pred(bbox=tiled, tile_id="tile-1")],
                 EvaluationConfig(classes=("seedling",)),
             )
 
