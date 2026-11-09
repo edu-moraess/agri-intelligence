@@ -149,21 +149,30 @@ Antes de qualquer benchmark:
 
 **Saída:** predições tipadas e rastreáveis; fake backend não conta como evidência de desempenho.
 
-### 2.3 — Post-processing e avaliação
+### 2.3 — Post-processing (integrada)
 - mapear caixas para imagem original;
-- testar clipping e deduplicação;
-- implementar matching e métricas;
-- validar métricas em fixtures sintéticas pequenas com resultados calculáveis à mão.
+- aplicar NMS determinístico e preservar proveniência;
+- validar geometria e deduplicação com testes.
 
-**Saída:** avaliador determinístico com testes de regressão.
+**Saída:** pós-processamento em espaço de imagem integrado à `main`.
 
-### 2.4 — Benchmark controlado
-- executar somente sobre dataset aprovado;
+### 2.4 — Evaluation Framework (em implementação)
+- representar ground truth separadamente de predições;
+- implementar matching one-to-one, por imagem e classe;
+- calcular TP/FP/FN, precision, recall, AP@0.50 e mAP@[0.50:0.95];
+- congelar regra de interpolação, agregação e semântica de classes sem suporte;
+- validar com fixtures sintéticas calculáveis à mão.
+
+**Saída:** avaliador determinístico, independente de backend/dataset, com testes de regressão.
+
+### 2.5 — Primeiro experimento real (bloqueado por governança)
+- selecionar somente dataset com licença e direitos verificados;
+- auditar ground truth e grupos de aquisição;
 - congelar ambiente, split, configuração e artefatos;
-- reportar métricas por classe e limitações;
-- não promover resultado experimental a capacidade operacional sem validação independente.
+- executar avaliação controlada somente após autorização explícita;
+- reportar métricas por classe e limitações.
 
-**Saída:** relatório reproduzível, ou bloqueio documentado se os dados não forem aprovados.
+**Saída:** relatório reproduzível, ou bloqueio documentado se dados/licença não forem aprovados.
 
 ## 8. Plano de testes
 
