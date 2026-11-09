@@ -13,10 +13,9 @@ Transformar imagens e ortofotos agrícolas em evidências visuais e espaciais ra
 | 0 — Foundation & Governance | Arquitetura, contratos, governança e validação estrutural | Concluída e integrada |
 | 1 — Data Engine | Proveniência, licenças, inventário, manifestos, auditoria de anotações, leakage e contratos espaciais | Concluída e integrada |
 | 2 — Crop Vision Engine | Image I/O, tiling, detecção, pós-processamento e avaliação em espaço de imagem | Planejamento documentado; implementação não iniciada |
-| 3 — Agricultural Geometry | Linhas, espaçamento e lacunas observadas | Planejada |
-| 4 — Geospatial Intelligence | Ortoimagens, CRS, transformações e exportações GIS | Planejada |
-| 5 — Multimodal Intelligence | Integração futura de sensores e fontes complementares | Planejada |
-| 6 — Validated Decision Support | Indicadores e suporte à decisão validados | Planejada |
+| 3 — Spatial Intelligence | Reconstrução de linhas, geometria, coordenadas, distâncias e mapas georreferenciados | Planejada |
+| 4 — Agricultural Analytics | Estande, densidade, espaçamento, falhas observadas e indicadores agronômicos validados | Planejada |
+| 5 — Operational Interface | Ingestão operacional, visualização, mapas, comparação de levantamentos e relatórios | Planejada |
 
 ## Princípios
 
