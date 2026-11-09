@@ -1,6 +1,27 @@
-quality_gate: PASS_WITH_WARNINGS
 required_checks:
   - package_import
+  - python_compile
   - structural_tests
   - secret_scan
   - prohibited_artifact_scan
+
+gate_policy:
+  pass: all_required_checks_pass
+  pass_with_warnings: no_required_check_failed_or_skipped
+  fail: any_required_check_failed_or_skipped
+
+scanner:
+  follows_symlinks: false
+  max_scannable_bytes: 5242880
+  report_path: artifacts/phase_0_validation_report.json
+  excluded_directories:
+    - .git
+    - __pycache__
+    - .pytest_cache
+    - .mypy_cache
+    - .ruff_cache
+
+notes:
+  - phase_0_has_no_dataset_or_model_performance_claims
+  - secret_scan_is_pattern_based_and_not_a_dedicated_secret_scanner
+  - manual_colab_validation_and_independent_review_remain_pending
