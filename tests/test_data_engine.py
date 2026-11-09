@@ -177,6 +177,22 @@ class DataEngineTests(unittest.TestCase):
         self.assertIn("invalid_image_dimensions", codes)
         self.assertIn("annotation_without_image", codes)
 
+    def test_annotation_coordinate_modes_are_applied(self):
+        normalized = audit_detection_records(
+            [{"id": "n", "image_id": "img", "bbox": [0.1, 0.1, 0.5, 0.5], "category": "single"}],
+            {"img": (100, 100)}, {"single"}, coordinate_mode="normalized_xywh"
+        )
+        xyxy = audit_detection_records(
+            [{"id": "p", "image_id": "img", "bbox": [10, 10, 60, 60], "category": "single"}],
+            {"img": (100, 100)}, {"single"}, coordinate_mode="absolute_xyxy"
+        )
+        self.assertNotIn("bbox_out_of_bounds", {item.code for item in normalized.findings})
+        self.assertNotIn("bbox_out_of_bounds", {item.code for item in xyxy.findings})
+
+    def test_annotation_rejects_unsupported_coordinate_mode(self):
+        audit = audit_detection_records([], {}, set(), coordinate_mode="unknown")
+        self.assertEqual(audit.findings[0].code, "unsupported_coordinate_mode")
+
     def test_annotation_rejects_non_mapping_records(self):
         audit = audit_detection_records([None], {"img": (10, 10)}, {"single"})
         self.assertIn("invalid_annotation_record", {item.code for item in audit.findings})
