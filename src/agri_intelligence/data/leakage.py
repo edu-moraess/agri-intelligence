@@ -40,14 +40,20 @@ def audit_split_leakage(assets: Iterable[Mapping[str, str]]) -> LeakageAudit:
             else:
                 by_hash.setdefault(digest.lower(), set()).add(split)
 
-        group = asset.get("source_video") or asset.get("campaign") or asset.get("flight")
-        if group is not None:
+        # Keep each provenance dimension independent. A source_video must not
+        # mask a campaign or flight identifier on the same record.
+        for field in ("source_video", "campaign", "flight"):
+            group = asset.get(field)
+            if group is None:
+                continue
             if not isinstance(group, str) or not group.strip():
                 findings.append(AuditFinding(
-                    "invalid_source_group", "error", f"asset in split {split!r} has an invalid source group"
+                    "invalid_source_group", "error",
+                    f"asset in split {split!r} has an invalid {field} group"
                 ))
             else:
-                by_group.setdefault(group.strip(), set()).add(split)
+                group_key = f"{field}:{group.strip()}"
+                by_group.setdefault(group_key, set()).add(split)
 
     for digest, splits in by_hash.items():
         if len(splits) > 1:
