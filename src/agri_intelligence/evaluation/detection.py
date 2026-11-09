@@ -186,7 +186,6 @@ def _match(
         best: GroundTruthBox | None = None
         best_iou = -1.0
         for reference in available:
-            # Build a lightweight prediction-shaped view for the shared IoU helper.
             overlap = _bbox_iou(prediction.bbox, reference.bbox)
             if overlap > best_iou:
                 best = reference
