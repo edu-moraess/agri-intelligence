@@ -140,7 +140,7 @@ class DataEngineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             header = (
-                b"\\x89PNG\\r\\n\\x1a\\n" + b"\\x00\\x00\\x00\\x0dIHDR"
+                bytes([137]) + b"PNG\r\n\x1a\n" + bytes([0, 0, 0, 13]) + b"IHDR"
                 + (640).to_bytes(4, "big") + (480).to_bytes(4, "big")
                 + bytes([8, 2])
             )
