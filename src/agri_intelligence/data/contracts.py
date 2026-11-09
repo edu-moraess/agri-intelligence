@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import PurePosixPath, PureWindowsPath
 from typing import Any, Mapping
 
 
@@ -217,9 +218,28 @@ class DatasetManifest:
         asset_ids = [asset.asset_id for asset in self.assets]
         if len(asset_ids) != len(set(asset_ids)):
             raise ValueError("manifest asset_ids must be unique")
-        asset_paths = [asset.path for asset in self.assets]
-        if len(asset_paths) != len(set(asset_paths)):
-            raise ValueError("manifest asset paths must be unique")
+        normalized_paths: list[str] = []
+        for asset in self.assets:
+            raw_path = asset.path
+            # Manifest paths are portable POSIX-relative paths, independent of host OS.
+            if (
+                not isinstance(raw_path, str)
+                or not raw_path
+                or "\\\\" in raw_path
+                or PurePosixPath(raw_path).is_absolute()
+                or PureWindowsPath(raw_path).is_absolute()
+                or PureWindowsPath(raw_path).drive
+            ):
+                raise ValueError(f"asset path must be a normalized relative path: {raw_path!r}")
+            parsed_path = PurePosixPath(raw_path)
+            if (
+                any(part in {"", ".", ".."} for part in raw_path.split("/"))
+                or parsed_path.as_posix() != raw_path
+            ):
+                raise ValueError(f"asset path must not contain traversal or non-normalized segments: {raw_path!r}")
+            normalized_paths.append(parsed_path.as_posix())
+        if len(normalized_paths) != len(set(normalized_paths)):
+            raise ValueError("manifest asset paths must be unique after normalization")
         split_names = [split.name for split in self.splits]
         if len(split_names) != len(set(split_names)):
             raise ValueError("manifest split names must be unique")
