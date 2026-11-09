@@ -119,7 +119,9 @@ class DetectionEvaluationTests(unittest.TestCase):
         )
         weed = result.per_class[1]
         self.assertEqual(weed.ground_truth_count, 0)
-        self.assertIsNone(weed.precision)
+        self.assertEqual(weed.prediction_count, 1)
+        self.assertEqual((weed.tp, weed.fp, weed.fn), (0, 1, 0))
+        self.assertEqual(weed.precision, 0.0)
         self.assertIsNone(weed.recall)
         self.assertIsNone(dict(weed.average_precision)[0.5])
         self.assertEqual(result.map_50, 0.0)
