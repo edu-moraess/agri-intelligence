@@ -62,6 +62,10 @@ class DatasetLicense:
         for value in (self.rights_verified, self.commercial_use_verified, self.attribution_verified):
             if not isinstance(value, bool):
                 raise ValueError("license verification flags must be booleans")
+        if self.attribution_required is not None and not isinstance(self.attribution_required, bool):
+            raise ValueError("attribution_required must be bool or None")
+        if any(not isinstance(note, str) for note in self.notes):
+            raise ValueError("license notes must be strings")
 
     @property
     def adoption_blocked(self) -> bool:
