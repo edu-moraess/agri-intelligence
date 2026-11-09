@@ -1,8 +1,6 @@
 """Deterministic, dependency-free tiling for immutable uint8 pixel buffers."""
 from __future__ import annotations
 
-from collections.abc import Iterator
-
 from .contracts import ImageFrame, TileRecord
 
 
