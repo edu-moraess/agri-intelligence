@@ -275,7 +275,7 @@ class DataEngineTests(unittest.TestCase):
             SpatialDatasetMetadata(affine_transform=(1, 0, 0, 0, 0, 0))
         valid = SpatialDatasetMetadata(crs="EPSG:32623", gsd_x_meters=0.1, width=100, height=80)
         self.assertTrue(valid.has_ground_reference)
-        self.assertFalse(valid.geographic_coordinates_available)
+        self.assertFalse(valid.spatial_coordinates_available)
 
     def test_manifest_write_is_json_and_atomic_temp_is_cleaned(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -340,7 +340,9 @@ class DataEngineTests(unittest.TestCase):
             width=100,
             height=80,
         )
-        self.assertTrue(metadata.geographic_coordinates_available)
+        # EPSG:32623 is projected UTM; this means spatial coordinates exist,
+        # not that longitude/latitude has been calculated.
+        self.assertTrue(metadata.spatial_coordinates_available)
 
     def test_jpeg_header_parser_reads_standard_frame_dimensions(self):
         from agri_intelligence.data.inventory import _image_dimensions
