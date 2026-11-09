@@ -14,6 +14,9 @@ from typing import Iterable
 from .contracts import DatasetAsset, EvidenceKind
 
 
+MAX_JPEG_HEADER_BYTES = 1024 * 1024
+
+
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
     if isinstance(chunk_size, bool) or not isinstance(chunk_size, int) or chunk_size <= 0:
         raise ValueError("chunk_size must be a positive integer")
@@ -47,20 +50,23 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
             if handle.read(2) != b"\xff\xd8":
                 return None, None, None, None
 
-            while True:
+            while handle.tell() < MAX_JPEG_HEADER_BYTES:
                 prefix = handle.read(1)
                 if not prefix:
                     break
-                if prefix != b"\xff":
+                if prefix != b"\\xff":
                     continue
                 marker_byte = handle.read(1)
-                while marker_byte == b"\xff":
+                while marker_byte == b"\\xff":
                     marker_byte = handle.read(1)
                 if not marker_byte:
                     break
                 marker = marker_byte[0]
                 if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
                     continue
+                # Start of Scan means image payload follows; do not scan compressed data.
+                if marker == 0xDA:
+                    break
                 length_bytes = handle.read(2)
                 if len(length_bytes) != 2:
                     break
@@ -77,6 +83,9 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                     _precision, height, width, channels = struct.unpack(">BHHB", frame)
                     if width > 0 and height > 0 and channels > 0:
                         return width, height, channels, "jpeg"
+                    break
+                next_position = handle.tell() + segment_length - 2
+                if next_position > MAX_JPEG_HEADER_BYTES:
                     break
                 handle.seek(segment_length - 2, os.SEEK_CUR)
     except (OSError, struct.error, ValueError):
