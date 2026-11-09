@@ -26,7 +26,7 @@ def audit_detection_records(
     coordinate_mode: str = "absolute_xywh",
 ) -> AnnotationAudit:
     findings: list[AuditFinding] = []
-    if coordinate_mode not in _COORDINATE_MODES:
+    if not isinstance(coordinate_mode, str) or coordinate_mode not in _COORDINATE_MODES:
         return AnnotationAudit((AuditFinding(
             "unsupported_coordinate_mode", "error",
             f"unsupported coordinate mode: {coordinate_mode!r}"
