@@ -1,6 +1,6 @@
 # Plano técnico — Fase 2: Crop Vision Engine
 
-**Status:** planejamento aprovado para revisão; implementação não iniciada.  
+**Status:** execução incremental; 2.0–2.3 integradas; 2.4 em implementação.  
 **Branch de planejamento:** `docs/phase-2-vision-plan`  
 **Base:** `14a0435a0d28673dd98c6934b66a081bfdf76820`  
 **Escopo:** percepção visual em espaço de imagem para plântulas/plantas, com contratos independentes de modelo e dataset.
@@ -71,7 +71,7 @@ O adaptador não deve decidir semântica agronômica nem converter pixels em uni
 Responsabilidades:
 - validar scores, classes e caixas;
 - converter coordenadas de tile para imagem original;
-- recortar caixas nos limites da imagem conforme política declarada;
+- rejeitar caixas fora dos limites da imagem, sem clipping silencioso;
 - deduplicar predições sobrepostas com método/limiar explícitos;
 - preservar a relação entre predição original e predição pós-processada.
 
@@ -84,7 +84,7 @@ Responsabilidades:
 - registrar limiares de confiança, IoU, regra de matching e versão do avaliador;
 - produzir resultados reproduzíveis em JSON/CSV sem misturar métricas de treino e teste.
 
-Métricas candidatas: precision, recall, AP@IoU=0.50 e mAP@[0.50:0.95]. A escolha final e a forma de agregação serão congeladas antes da avaliação de benchmark. Não definir metas numéricas de desempenho antes de conhecer dataset, classes, resolução e protocolo.
+Protocolo do framework: precision/recall/TP/FP/FN no limiar de confiança e IoU operacionais configurados; AP calculada sobre todas as predições ordenadas por score, com interpolação de 101 pontos; IoU padrão de 0.50 a 0.95 em passos de 0.05; mAP calculada somente sobre classes com ground truth positivo. Classes sem suporte e métricas indefinidas são representadas explicitamente, não convertidas silenciosamente em zero. O benchmark real ainda deve congelar dataset, classes, split por grupo, resolução e limitações; não definir metas numéricas antes disso.
 
 ### 4.6 Run manifest e relatórios
 
@@ -149,21 +149,30 @@ Antes de qualquer benchmark:
 
 **Saída:** predições tipadas e rastreáveis; fake backend não conta como evidência de desempenho.
 
-### 2.3 — Post-processing e avaliação
+### 2.3 — Post-processing (integrada)
 - mapear caixas para imagem original;
-- testar clipping e deduplicação;
-- implementar matching e métricas;
-- validar métricas em fixtures sintéticas pequenas com resultados calculáveis à mão.
+- aplicar NMS determinístico e preservar proveniência;
+- validar geometria e deduplicação com testes.
 
-**Saída:** avaliador determinístico com testes de regressão.
+**Saída:** pós-processamento em espaço de imagem integrado à `main`.
 
-### 2.4 — Benchmark controlado
-- executar somente sobre dataset aprovado;
+### 2.4 — Evaluation Framework (em implementação)
+- representar ground truth separadamente de predições;
+- implementar matching one-to-one, por imagem e classe;
+- calcular TP/FP/FN, precision, recall, AP@0.50 e mAP@[0.50:0.95];
+- congelar regra de interpolação, agregação e semântica de classes sem suporte;
+- validar com fixtures sintéticas calculáveis à mão.
+
+**Saída:** avaliador determinístico, independente de backend/dataset, com testes de regressão.
+
+### 2.5 — Primeiro experimento real (bloqueado por governança)
+- selecionar somente dataset com licença e direitos verificados;
+- auditar ground truth e grupos de aquisição;
 - congelar ambiente, split, configuração e artefatos;
-- reportar métricas por classe e limitações;
-- não promover resultado experimental a capacidade operacional sem validação independente.
+- executar avaliação controlada somente após autorização explícita;
+- reportar métricas por classe e limitações.
 
-**Saída:** relatório reproduzível, ou bloqueio documentado se os dados não forem aprovados.
+**Saída:** relatório reproduzível, ou bloqueio documentado se dados/licença não forem aprovados.
 
 ## 8. Plano de testes
 
