@@ -14,12 +14,24 @@ class AnnotationAudit:
     findings: tuple[AuditFinding, ...]
 
 
+_COORDINATE_MODES = {
+    "absolute_xywh", "normalized_xywh", "absolute_xyxy", "normalized_xyxy"
+}
+
+
 def audit_detection_records(
     records: Iterable[Mapping[str, Any]],
     image_sizes: Mapping[str, tuple[int, int]],
     classes: set[str],
+    coordinate_mode: str = "absolute_xywh",
 ) -> AnnotationAudit:
     findings: list[AuditFinding] = []
+    if coordinate_mode not in _COORDINATE_MODES:
+        return AnnotationAudit((AuditFinding(
+            "unsupported_coordinate_mode", "error",
+            f"unsupported coordinate mode: {coordinate_mode!r}"
+        ),))
+
     seen: set[str] = set()
     referenced_images: set[str] = set()
     valid_sizes: dict[str, tuple[int, int]] = {}
@@ -49,8 +61,8 @@ def audit_detection_records(
 
         raw_ann_id = record.get("id")
         ann_id = str(raw_ann_id).strip() if raw_ann_id is not None else ""
-        image_id = record.get("image_id")
-        image_id = str(image_id).strip() if image_id is not None else ""
+        raw_image_id = record.get("image_id")
+        image_id = str(raw_image_id).strip() if raw_image_id is not None else ""
 
         if not ann_id:
             findings.append(AuditFinding("missing_annotation_id", "error", f"record {index} has no id"))
@@ -71,7 +83,7 @@ def audit_detection_records(
         if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
             findings.append(AuditFinding(
                 "invalid_bbox", "error",
-                f"annotation {ann_id or index} must have [x,y,width,height]", ann_id or None
+                f"annotation {ann_id or index} must have four coordinates", ann_id or None
             ))
             continue
         if any(isinstance(v, bool) or not isinstance(v, Real) or not math.isfinite(float(v)) for v in bbox):
@@ -81,16 +93,26 @@ def audit_detection_records(
             ))
             continue
 
-        x, y, width, height = (float(v) for v in bbox)
-        if width <= 0 or height <= 0:
+        c1, c2, c3, c4 = (float(v) for v in bbox)
+        image_width, image_height = valid_sizes[image_id]
+        if coordinate_mode == "absolute_xywh":
+            x1, y1, x2, y2 = c1, c2, c1 + c3, c2 + c4
+        elif coordinate_mode == "normalized_xywh":
+            x1, y1 = c1 * image_width, c2 * image_height
+            x2, y2 = (c1 + c3) * image_width, (c2 + c4) * image_height
+        elif coordinate_mode == "absolute_xyxy":
+            x1, y1, x2, y2 = c1, c2, c3, c4
+        else:  # normalized_xyxy
+            x1, y1 = c1 * image_width, c2 * image_height
+            x2, y2 = c3 * image_width, c4 * image_height
+
+        if x2 <= x1 or y2 <= y1:
             findings.append(AuditFinding(
                 "non_positive_bbox", "error",
                 f"annotation {ann_id or index} has non-positive dimensions", ann_id or None
             ))
             continue
-
-        image_width, image_height = valid_sizes[image_id]
-        if x < 0 or y < 0 or x + width > image_width or y + height > image_height:
+        if x1 < 0 or y1 < 0 or x2 > image_width or y2 > image_height:
             findings.append(AuditFinding(
                 "bbox_out_of_bounds", "error",
                 f"annotation {ann_id or index} exceeds image bounds", ann_id or None
