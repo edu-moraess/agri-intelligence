@@ -197,6 +197,8 @@ class DetectionEvaluationTests(unittest.TestCase):
             {"classes": ("seedling",), "iou_thresholds": (0.75, 0.5)},
             {"classes": ("seedling",), "iou_thresholds": (0.5, 0.5)},
             {"classes": ("seedling",), "iou_thresholds": (0.75,), "operating_iou": 0.5},
+            {"classes": ("seedling",), "matching_policy": "hungarian"},
+            {"classes": ("seedling",), "ap_method": "voc_2007"},
         )
         for values in invalid:
             with self.subTest(values=values), self.assertRaises(ValueError):
