@@ -225,6 +225,7 @@ class DatasetManifest:
             if (
                 not isinstance(raw_path, str)
                 or not raw_path
+                or "\x00" in raw_path
                 or "\\" in raw_path
                 or PurePosixPath(raw_path).is_absolute()
                 or PureWindowsPath(raw_path).is_absolute()
