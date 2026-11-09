@@ -68,6 +68,13 @@ class FakePerceptionModel:
         _require_text("run_id", run_id)
         output = []
         for index, item in enumerate(self._detections):
+            if (
+                item.x_min < 0
+                or item.y_min < 0
+                or item.x_max > frame.width
+                or item.y_max > frame.height
+            ):
+                raise ValueError("synthetic detection box exceeds the supplied frame bounds")
             bbox = BoundingBox2D(
                 item.x_min,
                 item.y_min,
