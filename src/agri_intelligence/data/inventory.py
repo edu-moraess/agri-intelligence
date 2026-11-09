@@ -56,6 +56,8 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                     break
                 if prefix != b"\xff":
                     continue
+                if handle.tell() >= MAX_JPEG_HEADER_BYTES:
+                    break
                 marker_byte = handle.read(1)
                 while marker_byte == b"\xff" and handle.tell() < MAX_JPEG_HEADER_BYTES:
                     marker_byte = handle.read(1)
