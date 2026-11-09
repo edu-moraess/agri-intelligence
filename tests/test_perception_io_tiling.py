@@ -133,6 +133,25 @@ class ImageIOTests(unittest.TestCase):
             with self.assertRaises(ImageDecodeError):
                 read_image(link)
 
+    def test_valid_image_decodes_to_rgb_and_preserves_file_hash(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest("Pillow optional extra is not installed")
+        import hashlib
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "fixture.png"
+            Image.new("RGBA", (3, 2), (10, 20, 30, 255)).save(path)
+            original_hash = hashlib.sha256(path.read_bytes()).hexdigest()
+            decoded = read_image(path, image_id="field-plot-01")
+            self.assertEqual(decoded.image_id, "field-plot-01")
+            self.assertEqual((decoded.width, decoded.height, decoded.channels), (3, 2, 3))
+            self.assertEqual(decoded.dtype, "uint8")
+            self.assertEqual(decoded.color_space, "RGB")
+            self.assertEqual(decoded.source_sha256, original_hash)
+            self.assertEqual(decoded.pixels, bytes([10, 20, 30] * 6))
+
 
 if __name__ == "__main__":
     unittest.main()
