@@ -1,30 +1,48 @@
 # ARQTECH AGRI INTELLIGENCE
 
-Fundação de engenharia para uma plataforma modular de inteligência agrícola, sob a identidade ArqTech Labs. O primeiro domínio operacional planejado é **Crop Intelligence — Planting Quality & Emergence Monitoring**.
+Fundação de engenharia para uma plataforma modular de inteligência agrícola, sob a identidade ArqTech Labs. O primeiro domínio operacional é **Crop Intelligence — Planting Quality & Emergence Monitoring**.
 
-Esta versão implementa somente a Fase 0: arquitetura, contratos, governança, documentação e validação estrutural. Não contém modelos treinados, datasets, pesos, inferência ou métricas de desempenho.
+## Objetivo
+
+Transformar imagens e ortofotos agrícolas em evidências visuais e espaciais rastreáveis para apoiar a análise da qualidade do plantio: detecção de plântulas/plantas, reconstrução de linhas, espaçamento e identificação de lacunas visuais. Interpretações agronômicas e recomendações exigem validação própria e não são inferidas automaticamente.
+
+## Estado do projeto
+
+| Fase | Escopo | Estado |
+|---|---|---|
+| 0 — Foundation & Governance | Arquitetura, contratos, governança e validação estrutural | Concluída e integrada |
+| 1 — Data Engine | Proveniência, licenças, inventário, manifestos, auditoria de anotações, leakage e contratos espaciais | Concluída e integrada |
+| 2 — Crop Vision Engine | Image I/O, tiling, detecção, pós-processamento e avaliação em espaço de imagem | Planejamento documentado; implementação não iniciada |
+| 3 — Spatial Intelligence | Reconstrução de linhas, geometria, coordenadas, distâncias e mapas georreferenciados | Planejada |
+| 4 — Agricultural Analytics | Estande, densidade, espaçamento, falhas observadas e indicadores agronômicos validados | Planejada |
+| 5 — Operational Interface | Ingestão operacional, visualização, mapas, comparação de levantamentos e relatórios | Planejada |
 
 ## Princípios
 
-- Separar observações diretas, predições, medições derivadas, estimativas estatísticas, interpretações agronômicas e recomendações.
+- Separar observações, predições, medições derivadas, estimativas estatísticas, interpretações agronômicas e recomendações.
 - Preservar proveniência, método, incerteza e referência espacial.
-- Nunca converter pixel em distância física sem escala ou transformação válida.
+- Nunca converter pixels em distância física sem escala ou transformação válida.
 - Tratar lacunas visuais como evidência para investigação, não como falha agronômica confirmada.
 - Manter contratos independentes de YOLO, SAHI, sensor, cultura ou dataset.
+- Não declarar desempenho sem dados licenciados, ground truth auditado e protocolo reproduzível.
 
-## Estado atual
+## Governança de dados
 
-| Item | Estado |
-|---|---|
-| Repositório e branch principal | Implementado |
-| Pacote Python tipado | Implementado |
-| Contratos de observação e predição | Implementado |
-| Guardas de geometria e CRS | Fundação explícita |
-| Auditoria de dataset | Interface sem download |
-| Modelos e inferência | Planejados, não implementados |
-| Geoprocessamento avançado | Planejado, não implementado |
+A Fase 1 está integrada à `main` no commit `14a0435a0d28673dd98c6934b66a081bfdf76820`. O MSDD permanece **BLOCKED** enquanto a licença da distribuição candidata e os direitos de uso, redistribuição e atribuição não forem verificados. Não baixar datasets ou pesos, nem iniciar treinamento/inferência, sem autorização explícita.
 
-## Uso local
+## Documentação principal
+
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [Governança de dados](docs/DATA_GOVERNANCE.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Plano técnico da Fase 2 — Crop Vision Engine](docs/PHASE_2_VISION_PLAN.md)
+- [Revisão arquitetural](docs/ARCHITECTURE_REVIEW.md)
+
+## Validação manual
+
+O projeto adota validação manual no Colab. Não adicionar GitHub Actions.
+
+Comandos documentados na base atual:
 
 ```bash
 python3 -m unittest discover -s tests -v
@@ -32,16 +50,4 @@ PYTHONPATH=src python3 scripts/validate_environment.py
 PYTHONPATH=src python3 scripts/audit_dataset.py --help
 ```
 
-Nenhum comando da Fase 0 baixa dados, pesos ou dependências externas.
-
-## Roadmap
-
-0. Fundação e governança (este repositório)
-1. Data engine: descoberta, proveniência e validação de anotações
-2. Crop perception: detecção/segmentação e avaliação em espaço de imagem
-3. Geometria agrícola: linhas, espaçamento e lacunas
-4. Inteligência geoespacial: ortomosaicos, CRS e exportações GIS
-5. Inteligência multimodal
-6. Suporte à decisão agrícola validado
-
-Consulte [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md) e [`docs/ROADMAP.md`](docs/ROADMAP.md).
+Execute os comandos no SHA/branch em avaliação e registre as saídas. Não declarar aprovação com base apenas em documentação ou execução anterior.
