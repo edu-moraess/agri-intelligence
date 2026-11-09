@@ -57,7 +57,7 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                 if prefix != b"\xff":
                     continue
                 marker_byte = handle.read(1)
-                while marker_byte == b"\\xff":
+                while marker_byte == b"\xff":
                     marker_byte = handle.read(1)
                 if not marker_byte:
                     break
