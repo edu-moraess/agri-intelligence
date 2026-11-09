@@ -1,6 +1,6 @@
 # Plano técnico — Fase 2: Crop Vision Engine
 
-**Status:** planejamento aprovado para revisão; implementação não iniciada.  
+**Status:** execução incremental; 2.0–2.3 integradas; 2.4 em implementação.  
 **Branch de planejamento:** `docs/phase-2-vision-plan`  
 **Base:** `14a0435a0d28673dd98c6934b66a081bfdf76820`  
 **Escopo:** percepção visual em espaço de imagem para plântulas/plantas, com contratos independentes de modelo e dataset.
