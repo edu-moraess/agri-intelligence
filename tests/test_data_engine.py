@@ -291,6 +291,68 @@ class DataEngineTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):
                 write_manifest(self.manifest(), path)
 
+    def test_manifest_rejects_absolute_and_traversal_asset_paths(self):
+        args = ("x", DatasetVersion("1"), DatasetSource("local:x"), self.verified_license())
+        for unsafe_path in ("/etc/passwd", "../outside.png", "nested/../../outside.png", r"C:\\data\\asset.png"):
+            with self.subTest(path=unsafe_path):
+                asset = DatasetAsset("a", unsafe_path, 1)
+                with self.assertRaises(ValueError):
+                    DatasetManifest(*args, assets=(asset,))
+
+    def test_manifest_rejects_non_normalized_asset_paths(self):
+        args = ("x", DatasetVersion("1"), DatasetSource("local:x"), self.verified_license())
+        for unsafe_path in ("nested//asset.png", "./asset.png", "nested/./asset.png", "nested/../asset.png"):
+            with self.subTest(path=unsafe_path):
+                with self.assertRaises(ValueError):
+                    DatasetManifest(*args, assets=(DatasetAsset("a", unsafe_path, 1),))
+
+    def test_leakage_checks_campaign_and_flight_even_when_source_video_exists(self):
+        audit = audit_split_leakage([
+            {"split": "train", "source_video": "video-a", "campaign": "campaign-shared", "flight": "flight-a"},
+            {"split": "test", "source_video": "video-b", "campaign": "campaign-shared", "flight": "flight-b"},
+        ])
+        group_findings = [
+            finding for finding in audit.findings
+            if finding.code == "related_group_across_splits"
+        ]
+        self.assertEqual(len(group_findings), 1)
+        self.assertEqual(group_findings[0].asset_id, "campaign:campaign-shared")
+
+    def test_spatial_metadata_rejects_boolean_and_non_numeric_values(self):
+        invalid_cases = (
+            {"gsd_x_meters": True},
+            {"gsd_y_meters": "0.1"},
+            {"width": True},
+            {"height": 2.5},
+            {"crs": 123},
+            {"units": 7},
+            {"crs": "EPSG:32623", "affine_transform": (1, 0, 0, 0, True, 0)},
+        )
+        for kwargs in invalid_cases:
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(ValueError):
+                    SpatialDatasetMetadata(**kwargs)
+
+    def test_spatial_metadata_accepts_finite_numeric_affine_transform(self):
+        metadata = SpatialDatasetMetadata(
+            crs="EPSG:32623",
+            affine_transform=(0.1, 0, 500000, 0, -0.1, 7000000),
+            width=100,
+            height=80,
+        )
+        self.assertTrue(metadata.geographic_coordinates_available)
+
+    def test_jpeg_header_parser_stops_at_configured_header_limit(self):
+        from unittest.mock import patch
+        from agri_intelligence.data.inventory import _image_dimensions
+
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "large-header.jpg"
+            # APP1 claims a segment extending beyond the configured inspection cap.
+            path.write_bytes(b"\\xff\\xd8\\xff\\xe1\\x00\\x40" + b"x" * 64)
+            with patch("agri_intelligence.data.inventory.MAX_JPEG_HEADER_BYTES", 8):
+                self.assertEqual(_image_dimensions(path), (None, None, None, None))
+
 
 if __name__ == "__main__":
     unittest.main()
