@@ -66,5 +66,10 @@ class SpatialDatasetMetadata:
         return bool(self.crs and (self.affine_transform or self.gsd_x_meters))
 
     @property
-    def geographic_coordinates_available(self) -> bool:
+    def spatial_coordinates_available(self) -> bool:
+        """Whether CRS-referenced spatial coordinates are available.
+
+        The CRS may be projected (for example, UTM) or geographic. This
+        metadata contract does not transform coordinates or produce longitude/latitude.
+        """
         return bool(self.crs and self.affine_transform)
