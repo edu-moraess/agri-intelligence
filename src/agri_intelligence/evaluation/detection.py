@@ -16,7 +16,6 @@ from agri_intelligence.perception.contracts import (
     CoordinateSpace,
     DetectionPrediction,
 )
-from agri_intelligence.perception.postprocessing import intersection_over_union
 
 
 def _require_text(name: str, value: str) -> None:
