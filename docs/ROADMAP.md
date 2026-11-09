@@ -30,7 +30,16 @@ Escopo inicial em espaço de imagem:
 
 A primeira entrega será detecção. Segmentação depende de máscaras aprovadas e fica fora do primeiro incremento. Consulte [PHASE_2_VISION_PLAN.md](PHASE_2_VISION_PLAN.md).
 
-### Incrementos da Fase 2\n\n- 2.0 — Perception Contracts: concluída.\n- 2.1 — Image I/O + Tiling: concluída.\n- 2.2 — Detector Adapter: concluída.\n- 2.3 — Image-space Postprocessing: concluída.\n- 2.4 — Evaluation Framework: em implementação.\n- 2.5 — Primeiro experimento real: pendente de dados aprovados, ground truth auditado e protocolo congelado.\n\n## Fase 3 — Spatial Intelligence
+### Incrementos da Fase 2
+
+- 2.0 — Perception Contracts: concluída.
+- 2.1 — Image I/O + Tiling: concluída.
+- 2.2 — Detector Adapter: concluída.
+- 2.3 — Image-space Postprocessing: concluída.
+- 2.4 — Evaluation Framework: em implementação.
+- 2.5 — Primeiro experimento real: pendente de dados aprovados, ground truth auditado e protocolo congelado.
+
+## Fase 3 — Spatial Intelligence
 
 Reconstruir linhas quando suportado pelos dados, associar detecções à referência espacial, validar CRS/GSD/transformações e calcular distâncias somente quando houver escala espacial válida. Produzir mapas e exportações georreferenciadas com precisão documentada.
 
