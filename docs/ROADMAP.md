@@ -1,6 +1,6 @@
 # Roadmap — ARQTECH AGRI INTELLIGENCE
 
-O projeto evolui de engenharia de dados para percepção visual, geometria agrícola e inteligência geoespacial, mantendo evidência e incerteza rastreáveis.
+O projeto evolui de engenharia de dados para percepção visual, inteligência espacial, análise agronômica e operação, mantendo evidência e incerteza rastreáveis.
 
 ## Fase 0 — Foundation & Governance
 
@@ -30,21 +30,17 @@ Escopo inicial em espaço de imagem:
 
 A primeira entrega será detecção. Segmentação depende de máscaras aprovadas e fica fora do primeiro incremento. Consulte [PHASE_2_VISION_PLAN.md](PHASE_2_VISION_PLAN.md).
 
-## Fase 3 — Agricultural Geometry
+## Fase 3 — Spatial Intelligence
 
-Reconstruir linhas quando suportado pelos dados, estimar espaçamento somente com referência espacial válida e separar lacuna visual observada de falha agronômica confirmada.
+Reconstruir linhas quando suportado pelos dados, associar detecções à referência espacial, validar CRS/GSD/transformações e calcular distâncias somente quando houver escala espacial válida. Produzir mapas e exportações georreferenciadas com precisão documentada.
 
-## Fase 4 — Geospatial Intelligence
+## Fase 4 — Agricultural Analytics
 
-Integração geoespacial de ortomosaicos, CRS, GSD, transformações, mapas e exportações GIS, com validação de precisão e proveniência.
+Derivar densidade, estande, espaçamento, variabilidade, continuidade das linhas e lacunas observadas. Distinguir medidas e estimativas de diagnósticos agronômicos; validar indicadores com dados de campo antes de qualquer recomendação.
 
-## Fase 5 — Multimodal Intelligence
+## Fase 5 — Operational Interface
 
-Pontos de extensão para integrar sensores e fontes complementares, com sincronização, calibração, qualidade e incerteza explícitas.
-
-## Fase 6 — Validated Decision Support
-
-Indicadores agronômicos e suporte à decisão somente após validação científica, avaliação em campo e limites de uso documentados.
+Construir a interface para ingestão de levantamentos, execução controlada, visualização de detecções e mapas, comparação temporal/espacial, indicadores e relatórios exportáveis.
 
 ## Gates transversais
 
