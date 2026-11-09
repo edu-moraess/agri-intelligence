@@ -27,7 +27,7 @@ Por isso, o MSDD permanece **BLOCKED para adoção**. O artigo não comprova dir
 - A leitura de cabeçalho não substitui decodificação integral nem validação semântica da imagem.
 - Hash exato não detecta imagens quase duplicadas.
 - Grupos compartilhados entre splits indicam risco, não provam leakage.
-- Os contratos espaciais validam metadados, mas não aplicam transformações GIS.
+- `spatial_coordinates_available` indica que há CRS e transformação afim para coordenadas espaciais (projetadas ou geográficas). Isso não significa que latitude/longitude esteja disponível: não são executadas transformações GIS nem conversões para longitude/latitude.
 - O gate de licença é uma política técnica conservadora; não substitui revisão jurídica.
 - A gravação atômica reduz risco de arquivo parcial, mas não elimina todos os riscos de concorrência ou alterações maliciosas do diretório.
 
