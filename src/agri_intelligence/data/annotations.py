@@ -1,42 +1,111 @@
 """Pure validation helpers for detection annotation records."""
 from __future__ import annotations
+
+import math
 from dataclasses import dataclass
+from numbers import Real
 from typing import Any, Iterable, Mapping
+
 from .contracts import AuditFinding
 
-@dataclass(frozen=True)
-class AnnotationAudit: findings: tuple[AuditFinding, ...]
 
-def audit_detection_records(records: Iterable[Mapping[str, Any]], image_sizes: Mapping[str, tuple[int, int]], classes: set[str]) -> AnnotationAudit:
+@dataclass(frozen=True)
+class AnnotationAudit:
+    findings: tuple[AuditFinding, ...]
+
+
+def audit_detection_records(
+    records: Iterable[Mapping[str, Any]],
+    image_sizes: Mapping[str, tuple[int, int]],
+    classes: set[str],
+) -> AnnotationAudit:
     findings: list[AuditFinding] = []
     seen: set[str] = set()
     referenced_images: set[str] = set()
+    valid_sizes: dict[str, tuple[int, int]] = {}
+
+    for image_id, dimensions in image_sizes.items():
+        if (
+            not isinstance(image_id, str)
+            or not image_id.strip()
+            or not isinstance(dimensions, (tuple, list))
+            or len(dimensions) != 2
+            or any(isinstance(v, bool) or not isinstance(v, int) or v <= 0 for v in dimensions)
+        ):
+            findings.append(AuditFinding(
+                "invalid_image_dimensions", "error",
+                f"image {image_id!r} has invalid width/height metadata", str(image_id)
+            ))
+            continue
+        valid_sizes[image_id] = (dimensions[0], dimensions[1])
+
     for index, record in enumerate(records):
-        ann_id = str(record.get("id", ""))
-        image_id = str(record.get("image_id", ""))
+        if not isinstance(record, Mapping):
+            findings.append(AuditFinding(
+                "invalid_annotation_record", "error",
+                f"record {index} is not a mapping"
+            ))
+            continue
+
+        raw_ann_id = record.get("id")
+        ann_id = str(raw_ann_id).strip() if raw_ann_id is not None else ""
+        image_id = record.get("image_id")
+        image_id = str(image_id).strip() if image_id is not None else ""
+
         if not ann_id:
             findings.append(AuditFinding("missing_annotation_id", "error", f"record {index} has no id"))
         elif ann_id in seen:
-            findings.append(AuditFinding("duplicate_annotation_id", "error", f"duplicate annotation id: {ann_id}"))
+            findings.append(AuditFinding(
+                "duplicate_annotation_id", "error", f"duplicate annotation id: {ann_id}", ann_id
+            ))
         seen.add(ann_id)
-        if image_id not in image_sizes:
-            findings.append(AuditFinding("annotation_without_image", "error", f"unknown image: {image_id}", ann_id or None))
+
+        if image_id not in valid_sizes:
+            findings.append(AuditFinding(
+                "annotation_without_image", "error", f"unknown or invalid image: {image_id}", ann_id or None
+            ))
             continue
         referenced_images.add(image_id)
+
         bbox = record.get("bbox")
         if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
-            findings.append(AuditFinding("invalid_bbox", "error", f"annotation {ann_id} must have [x,y,width,height]", ann_id or None))
+            findings.append(AuditFinding(
+                "invalid_bbox", "error",
+                f"annotation {ann_id or index} must have [x,y,width,height]", ann_id or None
+            ))
             continue
-        x, y, width, height = bbox
+        if any(isinstance(v, bool) or not isinstance(v, Real) or not math.isfinite(float(v)) for v in bbox):
+            findings.append(AuditFinding(
+                "invalid_bbox_values", "error",
+                f"annotation {ann_id or index} has non-numeric or non-finite coordinates", ann_id or None
+            ))
+            continue
+
+        x, y, width, height = (float(v) for v in bbox)
         if width <= 0 or height <= 0:
-            findings.append(AuditFinding("non_positive_bbox", "error", f"annotation {ann_id} has non-positive dimensions", ann_id or None))
-        image_width, image_height = image_sizes[image_id]
+            findings.append(AuditFinding(
+                "non_positive_bbox", "error",
+                f"annotation {ann_id or index} has non-positive dimensions", ann_id or None
+            ))
+            continue
+
+        image_width, image_height = valid_sizes[image_id]
         if x < 0 or y < 0 or x + width > image_width or y + height > image_height:
-            findings.append(AuditFinding("bbox_out_of_bounds", "error", f"annotation {ann_id} exceeds image bounds", ann_id or None))
+            findings.append(AuditFinding(
+                "bbox_out_of_bounds", "error",
+                f"annotation {ann_id or index} exceeds image bounds", ann_id or None
+            ))
+
         label = record.get("category")
-        if label not in classes:
-            findings.append(AuditFinding("unknown_class", "error", f"unknown class: {label}", ann_id or None))
-    for image_id in image_sizes:
+        if not isinstance(label, str) or label not in classes:
+            findings.append(AuditFinding(
+                "unknown_class", "error", f"unknown class: {label!r}", ann_id or None
+            ))
+
+    for image_id in valid_sizes:
         if image_id not in referenced_images:
-            findings.append(AuditFinding("image_without_annotations", "warning", f"image has no annotations: {image_id}", image_id))
+            findings.append(AuditFinding(
+                "image_without_annotations", "warning",
+                f"image has no annotations: {image_id}", image_id
+            ))
     return AnnotationAudit(tuple(findings))
