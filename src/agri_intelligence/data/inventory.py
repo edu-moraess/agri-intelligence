@@ -57,15 +57,17 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                 if prefix != b"\xff":
                     continue
                 marker_byte = handle.read(1)
-                while marker_byte == b"\xff":
+                while marker_byte == b"\xff" and handle.tell() < MAX_JPEG_HEADER_BYTES:
                     marker_byte = handle.read(1)
-                if not marker_byte:
+                if not marker_byte or handle.tell() >= MAX_JPEG_HEADER_BYTES:
                     break
                 marker = marker_byte[0]
                 if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
                     continue
                 # Start of Scan means image payload follows; do not scan compressed data.
                 if marker == 0xDA:
+                    break
+                if handle.tell() + 2 > MAX_JPEG_HEADER_BYTES:
                     break
                 length_bytes = handle.read(2)
                 if len(length_bytes) != 2:
@@ -77,6 +79,8 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                     0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
                     0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
                 }:
+                    if handle.tell() + 6 > MAX_JPEG_HEADER_BYTES:
+                        break
                     frame = handle.read(6)
                     if len(frame) != 6:
                         break
