@@ -71,7 +71,7 @@ O adaptador não deve decidir semântica agronômica nem converter pixels em uni
 Responsabilidades:
 - validar scores, classes e caixas;
 - converter coordenadas de tile para imagem original;
-- recortar caixas nos limites da imagem conforme política declarada;
+- rejeitar caixas fora dos limites da imagem, sem clipping silencioso;
 - deduplicar predições sobrepostas com método/limiar explícitos;
 - preservar a relação entre predição original e predição pós-processada.
 
@@ -84,7 +84,7 @@ Responsabilidades:
 - registrar limiares de confiança, IoU, regra de matching e versão do avaliador;
 - produzir resultados reproduzíveis em JSON/CSV sem misturar métricas de treino e teste.
 
-Métricas candidatas: precision, recall, AP@IoU=0.50 e mAP@[0.50:0.95]. A escolha final e a forma de agregação serão congeladas antes da avaliação de benchmark. Não definir metas numéricas de desempenho antes de conhecer dataset, classes, resolução e protocolo.
+Protocolo do framework: precision/recall/TP/FP/FN no limiar de confiança e IoU operacionais configurados; AP calculada sobre todas as predições ordenadas por score, com interpolação de 101 pontos; IoU padrão de 0.50 a 0.95 em passos de 0.05; mAP calculada somente sobre classes com ground truth positivo. Classes sem suporte e métricas indefinidas são representadas explicitamente, não convertidas silenciosamente em zero. O benchmark real ainda deve congelar dataset, classes, split por grupo, resolução e limitações; não definir metas numéricas antes disso.
 
 ### 4.6 Run manifest e relatórios
 
