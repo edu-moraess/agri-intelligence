@@ -68,8 +68,10 @@ class EvaluationConfig:
 
     classes: tuple[str, ...]
     confidence_threshold: float = 0.25
-    iou_thresholds: tuple[float, ...] = (0.5,)
+    iou_thresholds: tuple[float, ...] = (0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95)
     operating_iou: float = 0.5
+    matching_policy: str = "greedy_score"
+    ap_method: str = "interpolated_101_point"
 
     def __post_init__(self) -> None:
         if not isinstance(self.classes, tuple) or not self.classes:
@@ -88,6 +90,10 @@ class EvaluationConfig:
         _require_unit_interval("operating_iou", self.operating_iou)
         if self.operating_iou not in self.iou_thresholds:
             raise ValueError("operating_iou must be included in iou_thresholds")
+        if self.matching_policy != "greedy_score":
+            raise ValueError("matching_policy must be 'greedy_score'")
+        if self.ap_method != "interpolated_101_point":
+            raise ValueError("ap_method must be 'interpolated_101_point'")
 
 
 @dataclass(frozen=True)
