@@ -1,8 +1,10 @@
 """Framework-independent contracts for dataset provenance and auditability."""
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Mapping
+
 
 class LicenseStatus(str, Enum):
     VERIFIED = "verified"
@@ -10,11 +12,13 @@ class LicenseStatus(str, Enum):
     RESTRICTED = "restricted"
     PENDING_REVIEW = "pending_review"
 
+
 class AuditState(str, Enum):
     PASS = "PASS"
     PASS_WITH_WARNINGS = "PASS_WITH_WARNINGS"
     FAIL = "FAIL"
     BLOCKED = "BLOCKED"
+
 
 class EvidenceKind(str, Enum):
     DECLARED = "declared"
@@ -23,15 +27,18 @@ class EvidenceKind(str, Enum):
     MISSING = "missing"
     INCONSISTENT = "inconsistent"
 
+
 @dataclass(frozen=True)
 class DatasetSource:
     uri: str
     publisher: str | None = None
     access_date: str | None = None
     source_type: str = "unknown"
+
     def __post_init__(self) -> None:
-        if not self.uri.strip():
+        if not isinstance(self.uri, str) or not self.uri.strip():
             raise ValueError("dataset source uri is required")
+
 
 @dataclass(frozen=True)
 class DatasetLicense:
@@ -40,24 +47,45 @@ class DatasetLicense:
     rights_verified: bool = False
     commercial_use_verified: bool = False
     attribution_required: bool | None = None
+    attribution_verified: bool = False
     notes: tuple[str, ...] = ()
+
     def __post_init__(self) -> None:
-        if self.status == LicenseStatus.VERIFIED and not self.name:
+        if not isinstance(self.status, LicenseStatus):
+            raise ValueError("status must be a LicenseStatus")
+        if self.status == LicenseStatus.VERIFIED and (not isinstance(self.name, str) or not self.name.strip()):
             raise ValueError("verified license requires a name")
-        if self.status != LicenseStatus.VERIFIED and (self.rights_verified or self.commercial_use_verified):
-            raise ValueError("unverified license cannot claim verified rights")
+        if self.status != LicenseStatus.VERIFIED and any(
+            (self.rights_verified, self.commercial_use_verified, self.attribution_verified)
+        ):
+            raise ValueError("unverified license cannot claim verified rights or attribution")
+        for value in (self.rights_verified, self.commercial_use_verified, self.attribution_verified):
+            if not isinstance(value, bool):
+                raise ValueError("license verification flags must be booleans")
+
     @property
     def adoption_blocked(self) -> bool:
-        return self.status != LicenseStatus.VERIFIED
+        # This project may be used commercially. Identification of a license alone
+        # is insufficient: redistribution, commercial-use terms and attribution
+        # obligations must each have been reviewed explicitly.
+        return not (
+            self.status == LicenseStatus.VERIFIED
+            and self.rights_verified
+            and self.commercial_use_verified
+            and self.attribution_verified
+        )
+
 
 @dataclass(frozen=True)
 class DatasetVersion:
     version: str
     revision: str | None = None
     released_at: str | None = None
+
     def __post_init__(self) -> None:
-        if not self.version.strip():
+        if not isinstance(self.version, str) or not self.version.strip():
             raise ValueError("dataset version is required")
+
 
 @dataclass(frozen=True)
 class AcquisitionMetadata:
@@ -69,15 +97,28 @@ class AcquisitionMetadata:
     field_or_parcel_ids: tuple[str, ...] = ()
     declared: Mapping[str, Any] = field(default_factory=dict)
 
+
 @dataclass(frozen=True)
 class AnnotationSchema:
     format: str
     task: str
     classes: tuple[str, ...]
     coordinate_mode: str = "absolute_xywh"
+
     def __post_init__(self) -> None:
-        if not self.format.strip() or not self.task.strip() or not self.classes:
-            raise ValueError("annotation format, task and classes are required")
+        if not isinstance(self.format, str) or not self.format.strip():
+            raise ValueError("annotation format is required")
+        if not isinstance(self.task, str) or not self.task.strip():
+            raise ValueError("annotation task is required")
+        if not self.classes or any(not isinstance(item, str) or not item.strip() for item in self.classes):
+            raise ValueError("annotation classes must be non-empty strings")
+        if len(set(self.classes)) != len(self.classes):
+            raise ValueError("annotation classes must be unique")
+        if self.coordinate_mode not in {
+            "absolute_xywh", "normalized_xywh", "absolute_xyxy", "normalized_xyxy"
+        }:
+            raise ValueError("unsupported annotation coordinate_mode")
+
 
 @dataclass(frozen=True)
 class DatasetSplit:
@@ -85,9 +126,17 @@ class DatasetSplit:
     asset_ids: tuple[str, ...] = ()
     source_groups: tuple[str, ...] = ()
     provenance: str | None = None
+
     def __post_init__(self) -> None:
-        if not self.name.strip():
+        if not isinstance(self.name, str) or not self.name.strip():
             raise ValueError("split name is required")
+        if any(not isinstance(item, str) or not item.strip() for item in self.asset_ids):
+            raise ValueError("split asset_ids must be non-empty strings")
+        if len(set(self.asset_ids)) != len(self.asset_ids):
+            raise ValueError("split asset_ids must be unique")
+        if any(not isinstance(item, str) or not item.strip() for item in self.source_groups):
+            raise ValueError("split source_groups must be non-empty strings")
+
 
 @dataclass(frozen=True)
 class DatasetAsset:
@@ -102,13 +151,26 @@ class DatasetAsset:
     temporal_metadata: Mapping[str, Any] = field(default_factory=dict)
     spatial_metadata: Mapping[str, Any] = field(default_factory=dict)
     evidence: Mapping[str, EvidenceKind] = field(default_factory=dict)
+
     def __post_init__(self) -> None:
-        if not self.asset_id.strip() or not self.path.strip() or self.size_bytes < 0:
-            raise ValueError("asset identity, path and non-negative size are required")
-        if self.sha256 is not None and (len(self.sha256) != 64 or any(c not in "0123456789abcdef" for c in self.sha256.lower())):
+        if not isinstance(self.asset_id, str) or not self.asset_id.strip():
+            raise ValueError("asset_id is required")
+        if not isinstance(self.path, str) or not self.path.strip():
+            raise ValueError("asset path is required")
+        if isinstance(self.size_bytes, bool) or not isinstance(self.size_bytes, int) or self.size_bytes < 0:
+            raise ValueError("asset size_bytes must be a non-negative integer")
+        if self.sha256 is not None and (
+            not isinstance(self.sha256, str)
+            or len(self.sha256) != 64
+            or any(c not in "0123456789abcdef" for c in self.sha256.lower())
+        ):
             raise ValueError("sha256 must be a 64-character hexadecimal string")
-        if self.width is not None and self.width <= 0 or self.height is not None and self.height <= 0:
-            raise ValueError("asset dimensions must be positive")
+        for name, value in (("width", self.width), ("height", self.height), ("channels", self.channels)):
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, int) or value <= 0
+            ):
+                raise ValueError(f"asset {name} must be a positive integer")
+
 
 @dataclass(frozen=True)
 class AuditFinding:
@@ -117,15 +179,18 @@ class AuditFinding:
     message: str
     asset_id: str | None = None
 
+
 @dataclass(frozen=True)
 class DatasetAuditResult:
     state: AuditState
     findings: tuple[AuditFinding, ...] = ()
     checks: Mapping[str, str] = field(default_factory=dict)
     limitations: tuple[str, ...] = ()
+
     def __post_init__(self) -> None:
         if self.state == AuditState.PASS and any(f.severity == "error" for f in self.findings):
             raise ValueError("PASS cannot contain error findings")
+
 
 @dataclass(frozen=True)
 class DatasetManifest:
@@ -141,11 +206,34 @@ class DatasetManifest:
     spatial_reference: Mapping[str, Any] = field(default_factory=dict)
     audit: DatasetAuditResult | None = None
     limitations: tuple[str, ...] = ()
+
     def __post_init__(self) -> None:
-        if not self.dataset_id.strip():
+        if not isinstance(self.dataset_id, str) or not self.dataset_id.strip():
             raise ValueError("dataset_id is required")
-        if self.license.adoption_blocked and self.audit and self.audit.state not in {AuditState.BLOCKED, AuditState.FAIL}:
-            raise ValueError("dataset with unverified license cannot have an adoptable audit state")
+        asset_ids = [asset.asset_id for asset in self.assets]
+        if len(asset_ids) != len(set(asset_ids)):
+            raise ValueError("manifest asset_ids must be unique")
+        asset_paths = [asset.path for asset in self.assets]
+        if len(asset_paths) != len(set(asset_paths)):
+            raise ValueError("manifest asset paths must be unique")
+        split_names = [split.name for split in self.splits]
+        if len(split_names) != len(set(split_names)):
+            raise ValueError("manifest split names must be unique")
+        known_assets = set(asset_ids)
+        assigned_assets: set[str] = set()
+        for split in self.splits:
+            unknown = set(split.asset_ids) - known_assets
+            if unknown:
+                raise ValueError(f"split {split.name!r} references unknown assets: {sorted(unknown)}")
+            overlap = assigned_assets.intersection(split.asset_ids)
+            if overlap:
+                raise ValueError(f"assets assigned to multiple splits: {sorted(overlap)}")
+            assigned_assets.update(split.asset_ids)
+        if self.license.adoption_blocked and self.audit and self.audit.state not in {
+            AuditState.BLOCKED, AuditState.FAIL
+        }:
+            raise ValueError("dataset with unverified adoption requirements cannot have an adoptable audit state")
+
     @property
     def adoption_state(self) -> AuditState:
         if self.license.adoption_blocked:
