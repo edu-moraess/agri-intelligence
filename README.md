@@ -17,7 +17,16 @@ Transformar imagens e ortofotos agrícolas em evidências visuais e espaciais ra
 | 4 — Agricultural Analytics | Estande, densidade, espaçamento, falhas observadas e indicadores agronômicos validados | Planejada |
 | 5 — Operational Interface | Ingestão operacional, visualização, mapas, comparação de levantamentos e relatórios | Planejada |
 
-### Estado detalhado da Fase 2\n\n- 2.0 — Perception Contracts: integrada.\n- 2.1 — Image I/O + Tiling: integrada.\n- 2.2 — Detector Adapter: integrada.\n- 2.3 — Image-space Postprocessing: integrada.\n- 2.4 — Evaluation Framework: em implementação; validação com fixtures sintéticas.\n- 2.5 — Primeiro experimento real: pendente de fonte licenciada, ground truth auditado e protocolo aprovado.\n\n## Princípios
+### Estado detalhado da Fase 2
+
+- 2.0 — Perception Contracts: integrada.
+- 2.1 — Image I/O + Tiling: integrada.
+- 2.2 — Detector Adapter: integrada.
+- 2.3 — Image-space Postprocessing: integrada.
+- 2.4 — Evaluation Framework: em implementação; validação com fixtures sintéticas.
+- 2.5 — Primeiro experimento real: pendente de fonte licenciada, ground truth auditado e protocolo aprovado.
+
+## Princípios
 
 - Separar observações, predições, medições derivadas, estimativas estatísticas, interpretações agronômicas e recomendações.
 - Preservar proveniência, método, incerteza e referência espacial.
