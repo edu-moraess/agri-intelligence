@@ -293,7 +293,7 @@ class DataEngineTests(unittest.TestCase):
 
     def test_manifest_rejects_absolute_and_traversal_asset_paths(self):
         args = ("x", DatasetVersion("1"), DatasetSource("local:x"), self.verified_license())
-        for unsafe_path in ("/etc/passwd", "../outside.png", "nested/../../outside.png", r"C:\\data\\asset.png"):
+        for unsafe_path in ("/etc/passwd", "../outside.png", "nested/../../outside.png", r"C:\data\asset.png"):
             with self.subTest(path=unsafe_path):
                 asset = DatasetAsset("a", unsafe_path, 1)
                 with self.assertRaises(ValueError):
@@ -349,7 +349,7 @@ class DataEngineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "large-header.jpg"
             # APP1 claims a segment extending beyond the configured inspection cap.
-            path.write_bytes(b"\\xff\\xd8\\xff\\xe1\\x00\\x40" + b"x" * 64)
+            path.write_bytes(b"\xff\xd8\xff\xe1\x00\x40" + b"x" * 64)
             with patch("agri_intelligence.data.inventory.MAX_JPEG_HEADER_BYTES", 8):
                 self.assertEqual(_image_dimensions(path), (None, None, None, None))
 
