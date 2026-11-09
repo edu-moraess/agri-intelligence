@@ -64,7 +64,9 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                 if not marker_byte or handle.tell() >= MAX_JPEG_HEADER_BYTES:
                     break
                 marker = marker_byte[0]
-                if marker in {0xD8, 0xD9} or 0xD0 <= marker <= 0xD7:
+                if marker == 0xD9:
+                    break
+                if marker == 0xD8 or 0xD0 <= marker <= 0xD7:
                     continue
                 # Start of Scan means image payload follows; do not scan compressed data.
                 if marker == 0xDA:
@@ -81,6 +83,8 @@ def _image_dimensions(path: Path) -> tuple[int | None, int | None, int | None, s
                     0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
                     0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
                 }:
+                    if segment_length < 8:
+                        break
                     if handle.tell() + 6 > MAX_JPEG_HEADER_BYTES:
                         break
                     frame = handle.read(6)
