@@ -59,3 +59,9 @@ Construir a interface para ingestão de levantamentos, execução controlada, vi
 - Testes determinísticos e validator oficial em cada fase.
 - Validação manual no Colab; não adicionar GitHub Actions.
 - Cada fase trabalha em branch própria; integração à `main` exige revisão, evidência e autorização.
+
+## Platform notebook v1
+
+The Colab orchestration entry point is [`notebooks/Agri_Intelligence_Platform_v1.ipynb`](../notebooks/Agri_Intelligence_Platform_v1.ipynb). Its architecture and persistence model are documented in [`PLATFORM_NOTEBOOK_V1_ARCHITECTURE.md`](PLATFORM_NOTEBOOK_V1_ARCHITECTURE.md).
+
+The first milestone establishes persistent Drive storage, repository identity, runtime compatibility reporting, resumable recovery of the Zenodo 15235602 source files and checksum-backed source manifests. It does not train or run inference. Phase 2.5 spatial selection and dataset materialization follow after the source recovery and unpublished checkpoint are reconciled.
